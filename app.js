@@ -688,6 +688,22 @@ function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){if(m==='&') 
 // Inicializar la app
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new NotesApp();
+    const container = document.querySelector('.app-container');
     const savedTheme = localStorage.getItem('notesTheme');
-    if (savedTheme) document.querySelector('.app-container').setAttribute('data-theme', savedTheme);
+
+    if (savedTheme) {
+        container.setAttribute('data-theme', savedTheme);
+    } else {
+        const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        container.setAttribute('data-theme', systemDark ? 'dark' : 'light');
+    }
+
+    // Escuchar cambios de preferencia de color del sistema (desktop y móvil)
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('notesTheme')) {
+                container.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+            }
+        });
+    }
 });
