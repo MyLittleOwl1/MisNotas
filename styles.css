@@ -464,6 +464,11 @@ body.offline .app-header::after {
     background: var(--accent);
 }
 
+/* Título de nota más suave en modo oscuro */
+[data-theme="dark"] .note-card-title span {
+    color: #cbd5e1;
+}
+
 [data-theme="dark"] #noteTags,
 [data-theme="dark"] #searchInput,
 [data-theme="dark"] .filters-bar input,
