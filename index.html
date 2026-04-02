@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <base href="./">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1e1e2f">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAQAAAAAYLlVAAAACXBIWXMAAAsTAAALEwEAmpwYAAABHklEQVR4nO3XQUrDQBiF4eEOwJxD4NOnSDcoIL1wZGRs22Bh4cHxd9D4OnbpQwWnXfoi+VuWGGpuSSxheS0B4hhihGKUYoRilGKMYoRilGKW4L7t2WZ+vZ1u5e4rdpF7TLlJS9ooU+c+bGAlVnGqKQsvt2P3SvQ6t1A24iuyU1ogwziHjt8yjwEwAuAA1d8D+hXQ2cgDtsvW44Cl0Ar8ADIUOCjiGCE2Rn+KlPI87Z2CalwS3wFXwEHgDYBHwFBgD/gBYAi8ADXZwH4HNz9FPRZtMk1Gp7RYn3ahaq0sWpfOGBJyHjGsZcHhsNQA4cMNoFXhO2A2w8tFQG+5XkTTmh04VXBGXAOgnnvYBq6Tx7dgeC4oAq1pAk8wqZ6gAAAABJRU5ErkJggg==" />
+    <title>NotasFlow | Notas local-first</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📓</text></svg>">
+</head>
+<body>
+    <div class="app-container" data-theme="light">
+        <!-- Header principal -->
+        <header class="app-header">
+            <div class="header-left">
+                <h1>📓 NotasFlow</h1>
+                <span class="note-count-badge" id="noteCountBadge">0</span>
+            </div>
+            <div class="header-center">
+                <div class="search-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Buscar en título o contenido..." aria-label="Buscar notas">
+                </div>
+            </div>
+            <div class="header-right">
+                <!-- Header -->
+                    <button id="newNoteBtn" class="btn-primary" aria-label="Nueva nota" title="Crear nueva nota">+ Nueva</button>
+                    <button id="importBtn" class="btn-icon" aria-label="Importar JSON" title="Importar notas desde archivo JSON">📂</button>
+                    <button id="exportAllBtn" class="btn-icon" aria-label="Exportar todas" title="Exportar todas las notas a JSON">💾</button>
+                    <button id="trashBtn" class="btn-icon" aria-label="Papelera" title="Ver notas eliminadas (papelera)">🗑️</button>
+                    <button id="themeToggle" class="btn-icon" aria-label="Modo oscuro" title="Cambiar entre tema claro y oscuro">🌙</button>
+                    <button id="installBtn" class="btn-icon" aria-label="Instalar app" title="Instalar la aplicación web">📲</button>
+                    <button id="deleteAllBtn" class="btn-icon" aria-label="Eliminar todas" title="Eliminar todas las notas activas (mover a papelera)">⚠️🗑️</button>
+            </div>
+        </header>
+
+        <div id="mobileNav" class="mobile-nav" style="display: none;">
+            <button id="mobileNotesViewBtn" class="btn-secondary">Lista</button>
+            <button id="mobileEditorViewBtn" class="btn-secondary">Editor</button>
+        </div>
+        </header>
+
+        <!-- Main: lista + editor -->
+        <div class="main-layout">
+            <!-- Sidebar izquierda: lista de notas -->
+            <aside class="notes-sidebar">
+                <div class="filters-bar">
+                    <select id="sortSelect" aria-label="Ordenar por">
+                        <option value="recent">Más reciente</option>
+                        <option value="oldest">Más antigua</option>
+                        <option value="pinned">Fijadas primero</option>
+                        <option value="alpha">Alfabético (título)</option>
+                    </select>
+                    <select id="filterTypeSelect" aria-label="Filtrar por">
+                        <option value="all">Todas</option>
+                        <option value="pinned">Fijadas</option>
+                        <option value="favorites">Favoritas</option>
+                        <option value="recent7">Últimos 7 días</option>
+                    </select>
+                    <input type="text" id="tagFilterInput" placeholder="Filtrar por tag..." aria-label="Filtrar por etiqueta">
+                    <!-- Sidebar -->
+                    <button id="compactToggle" class="btn-icon-small" aria-label="Vista compacta" title="Alternar vista compacta de notas">📋</button>
+                </div>
+                <div id="notesListContainer" class="notes-list-container">
+                    <div id="notesList" class="notes-list"></div>
+                    <div id="scrollLoader" class="scroll-loader" style="display: none;">Cargando más notas...</div>
+                </div>
+            </aside>
+
+            <!-- Área de edición -->
+            <main class="editor-area">
+                <div id="editorContainer" class="editor-container">
+                    <div class="editor-header">
+                        <div class="editor-actions">
+                            <!-- Editor -->
+                            <button id="pinNoteBtn" class="btn-icon" aria-label="Fijar nota" title="Fijar / Desfijar nota">📌</button>
+                            <button id="favoriteNoteBtn" class="btn-icon" aria-label="Favorito" title="Marcar / Desmarcar como favorita">⭐</button>
+                            <button id="duplicateNoteBtn" class="btn-icon" aria-label="Duplicar nota" title="Duplicar nota actual">📑</button>
+                            <button id="deleteNoteBtn" class="btn-icon delete-btn" aria-label="Eliminar nota" title="Mover nota a la papelera">🗑️</button>
+                            <button id="emailNoteBtn" class="btn-icon" aria-label="Enviar por email" title="Enviar nota por correo electrónico">✉️</button>
+                            <button id="exportNoteBtn" class="btn-icon" aria-label="Exportar nota individual" title="Exportar esta nota como archivo JSON">📎</button>
+                        </div>
+                    </div>
+                    <div class="editor-content">
+                        <input type="text" id="noteTitle" placeholder="Título de la nota" autocomplete="off">
+                        <div class="tags-input-wrapper">
+                            <input type="text" id="noteTags" placeholder="Etiquetas (separadas por coma)" autocomplete="off">
+                        </div>
+                        <textarea id="noteText" placeholder="Escribe tu nota aquí..." rows="12"></textarea>
+                        <div class="editor-footer">
+                            <div class="word-counter" id="wordCounter">0 palabras · 0 caracteres</div>
+                            <div class="note-meta" id="noteMeta">Sin guardar</div>
+                        </div>
+                    </div>
+                    <div class="auto-save-status" id="autoSaveStatus">✓ Todo guardado</div>
+                </div>
+                <div id="emptyEditorMsg" class="empty-editor-msg">Selecciona una nota o crea una nueva ✨</div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal de importación -->
+    <div id="importModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Importar notas</h3>
+            <p>Selecciona un archivo JSON válido</p>
+            <input type="file" id="importFile" accept=".json">
+            <div class="modal-actions">
+                <button id="importReplaceBtn" class="btn-secondary">Reemplazar todas</button>
+                <button id="importMergeBtn" class="btn-primary">Fusionar</button>
+                <button id="closeImportModal" class="btn-outline">Cancelar</button>
+            </div>
+            <div id="importFeedback" class="import-feedback"></div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación genérico -->
+    <div id="confirmModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <p id="confirmMsg">¿Estás seguro?</p>
+            <div class="modal-actions">
+                <button id="confirmYesBtn" class="btn-primary">Sí</button>
+                <button id="confirmNoBtn" class="btn-outline">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notificaciones -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js" type="module"></script>
+</body>
+</html>
