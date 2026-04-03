@@ -1,6 +1,6 @@
 {
-  "name": "NotasFlow",
-  "short_name": "NotasFlow",
+  "name": "MisNotas",
+  "short_name": "MisNotas",
   "description": "App de notas local-first, rápida y moderna",
   "start_url": "./",
   "scope": "./",
